@@ -52,23 +52,25 @@ export default function Preloader({ onComplete }) {
     return () => clearInterval(interval);
   }, [isHolding, isUnlocked]);
 
-  const scrambleText = contextSafe((targetText) => {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*";
-    let iteration = 0;
-    const interval = setInterval(() => {
-      if (textRef.current) {
-        textRef.current.innerText = textRef.current.innerText
-          .split("")
-          .map((letter, index) => {
-            if (index < iteration) return targetText[index];
-            return chars[Math.floor(Math.random() * 26)];
-          })
-          .join("");
-      }
-      if (iteration >= targetText.length) clearInterval(interval);
-      iteration += 1 / 3;
-    }, 30);
-  });
+  const scrambleText = (targetText) => {
+    contextSafe(() => {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*";
+      let iteration = 0;
+      const interval = setInterval(() => {
+        if (textRef.current) {
+          textRef.current.innerText = textRef.current.innerText
+            .split("")
+            .map((letter, index) => {
+              if (index < iteration) return targetText[index];
+              return chars[Math.floor(Math.random() * 26)];
+            })
+            .join("");
+        }
+        if (iteration >= targetText.length) clearInterval(interval);
+        iteration += 1 / 3;
+      }, 30);
+    })();
+  };
 
   useGSAP(() => {
     scrambleText("AWAITING BIOMETRIC INPUT...");
@@ -107,57 +109,63 @@ export default function Preloader({ onComplete }) {
     );
   }, []);
 
-  const handlePointerDown = contextSafe(() => {
-    if (isUnlocked) return;
-    setIsHolding(true);
-    gsap.to(greetingRef.current, { opacity: 0, duration: 0.3 });
+  const handleDown = () => {
+    contextSafe(() => {
+      if (isUnlocked) return;
+      setIsHolding(true);
+      gsap.to(greetingRef.current, { opacity: 0, duration: 0.3 });
 
-    audio.init();
-    audio.playClick();
-    scrambleText("DECRYPTING NEURAL PATHWAYS...");
-    holdTl.current.play();
-  });
+      audio.init();
+      audio.playClick();
+      scrambleText("DECRYPTING NEURAL PATHWAYS...");
+      if (holdTl.current) holdTl.current.play();
+    })();
+  };
 
-  const handlePointerUp = contextSafe(() => {
-    if (isUnlocked) return;
-    if (holdTl.current.progress() < 1) {
-      setIsHolding(false);
-      holdTl.current.reverse();
-      scrambleText("ACCESS DENIED. HOLD TO RETRY.");
-      gsap.to(textRef.current, { color: "#ef4444", duration: 0.3 });
-    }
-  });
+  const handleUp = () => {
+    contextSafe(() => {
+      if (isUnlocked) return;
+      if (holdTl.current && holdTl.current.progress() < 1) {
+        setIsHolding(false);
+        holdTl.current.reverse();
+        scrambleText("ACCESS DENIED. HOLD TO RETRY.");
+        gsap.to(textRef.current, { color: "#ef4444", duration: 0.3 });
+      }
+    })();
+  };
 
-  const executeIgnition = contextSafe(() => {
-    audio.playMilestone();
-    scrambleText("ROOT ACCESS GRANTED.");
+  const executeIgnition = () => {
+    contextSafe(() => {
+      audio.playMilestone();
+      scrambleText("ROOT ACCESS GRANTED.");
 
-    const masterTl = gsap.timeline({ onComplete: onComplete });
+      const masterTl = gsap.timeline({ onComplete: onComplete });
 
-    masterTl
-      .to(glitchRef.current, {
-        opacity: 1,
-        duration: 0.1,
-        yoyo: true,
-        repeat: 1,
-      })
-      .to(
-        containerRef.current,
-        {
-          scale: 5,
-          opacity: 0,
-          filter: "blur(20px)",
-          duration: 1.2,
-          ease: "expo.in",
-        },
-        "+=0.3",
-      );
-  });
+      masterTl
+        .to(glitchRef.current, {
+          opacity: 1,
+          duration: 0.1,
+          yoyo: true,
+          repeat: 1,
+        })
+        .to(
+          containerRef.current,
+          {
+            scale: 5,
+            opacity: 0,
+            filter: "blur(20px)",
+            duration: 1.2,
+            ease: "expo.in",
+          },
+          "+=0.3",
+        );
+    })();
+  };
 
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white overflow-hidden origin-center transition-colors duration-500"
+      className="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white overflow-hidden origin-center transition-colors duration-500 select-none"
       style={{ willChange: "transform, opacity, filter" }}
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.1)_0%,transparent_60%)]"></div>
@@ -211,14 +219,24 @@ export default function Preloader({ onComplete }) {
 
           <button
             ref={buttonRef}
-            onPointerDown={handlePointerDown}
-            onPointerUp={handlePointerUp}
-            onPointerLeave={handlePointerUp}
-            className={`w-24 h-24 rounded-full border border-orange-500/30 flex items-center justify-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-md transition-colors hover:bg-orange-500/10 cursor-none ${isUnlocked ? "pointer-events-none opacity-0" : ""}`}
-            style={{ touchAction: "none" }}
+            onPointerDown={handleDown}
+            onPointerUp={handleUp}
+            onPointerLeave={handleUp}
+            onPointerCancel={handleUp}
+            onTouchStart={handleDown}
+            onTouchEnd={handleUp}
+            onTouchCancel={handleUp}
+            onContextMenu={(e) => e.preventDefault()}
+            className={`w-24 h-24 rounded-full border border-orange-500/30 flex items-center justify-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-md transition-colors hover:bg-orange-500/10 cursor-none select-none outline-none ${isUnlocked ? "pointer-events-none opacity-0" : ""}`}
+            style={{
+              touchAction: "none",
+              WebkitTouchCallout: "none",
+              WebkitUserSelect: "none",
+              userSelect: "none",
+            }}
           >
-            <div className="w-12 h-12 rounded-full border border-orange-500/50 flex items-center justify-center animate-pulse">
-              <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+            <div className="w-12 h-12 rounded-full border border-orange-500/50 flex items-center justify-center animate-pulse pointer-events-none">
+              <div className="w-2 h-2 rounded-full bg-orange-500 pointer-events-none"></div>
             </div>
           </button>
         </div>

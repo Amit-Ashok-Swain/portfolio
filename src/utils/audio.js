@@ -1,9 +1,8 @@
-// Inside src/utils/audio.js
 class AudioEngine {
   constructor() {
     this.ctx = null;
     this.masterGain = null;
-    this.isMuted = false; // Added mute state
+    this.isMuted = false; 
   }
 
   init() {
@@ -15,15 +14,14 @@ class AudioEngine {
     this.masterGain.connect(this.ctx.destination);
   }
 
-  // Added toggle function for the Navbar button
   toggleMute() {
     this.isMuted = !this.isMuted;
     return this.isMuted;
   }
 
   playClick() {
-    if (this.isMuted || !this.ctx) return; // Respect mute state
-    
+    if (this.isMuted || !this.ctx) return; 
+
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
 
@@ -42,8 +40,8 @@ class AudioEngine {
   }
 
   playMilestone() {
-    if (this.isMuted || !this.ctx) return; // Respect mute state
-    
+    if (this.isMuted || !this.ctx) return; 
+
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
 
