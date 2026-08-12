@@ -137,7 +137,7 @@ export default function App() {
 
   return (
     <main
-      className={`min-h-screen text-slate-900 bg-slate-50 dark:text-white dark:bg-slate-950 transition-colors duration-500 ${glitchMode ? "overflow-hidden h-screen" : ""}`}
+      className={`min-h-screen w-full overflow-x-hidden text-slate-900 bg-slate-50 dark:text-white dark:bg-slate-950 transition-colors duration-500 ${glitchMode ? "overflow-hidden h-screen" : ""}`}
     >
       {!appReady && <Preloader onComplete={() => setAppReady(true)} />}
 

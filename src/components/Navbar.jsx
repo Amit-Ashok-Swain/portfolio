@@ -5,6 +5,7 @@ import { audio } from "../utils/audio";
 export default function Navbar({ toggleTheme }) {
   const [time, setTime] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAudioOn, setIsAudioOn] = useState(true);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -99,12 +100,38 @@ export default function Navbar({ toggleTheme }) {
             <span>CMD</span>
           </button>
 
+          {/* AUDIO TOGGLE BUTTON */}
+          <button
+            onClick={() => {
+              const isNowMuted = audio.toggleMute();
+              setIsAudioOn(!isNowMuted);
+              audio.playClick();
+            }}
+            className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-full border transition-all bg-transparent border-slate-300 text-slate-600 dark:border-slate-700 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95"
+            title="Toggle Audio"
+          >
+            {isAudioOn ? (
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <line x1="23" y1="9" x2="17" y2="15"></line>
+                <line x1="17" y1="9" x2="23" y2="15"></line>
+              </svg>
+            )}
+          </button>
+
           <button
             onClick={() => {
               audio.playClick();
               toggleTheme();
             }}
-            className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-full border transition-all bg-orange-500 border-orange-600 text-white dark:bg-transparent dark:border-slate-700 dark:text-orange-500 dark:hover:bg-orange-500/20"
+            className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-full border transition-all bg-orange-500 border-orange-600 text-white dark:bg-transparent dark:border-slate-700 dark:text-orange-500 dark:hover:bg-orange-500/20 active:scale-95"
+            title="Toggle Theme"
           >
             <span className="block dark:hidden text-sm">☀</span>
             <span className="hidden dark:block text-sm">☾</span>
