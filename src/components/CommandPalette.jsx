@@ -27,7 +27,7 @@ export default function CommandPalette({ isOpen, setIsOpen, toggleTheme }) {
       {
         label: "View Source Code",
         action: () =>
-          window.open("https://github.com/Amit-Ashok-Swain", "_blank"),
+          window.open("https://github.com/Amit-Ashok-Swain/portfolio.git", "_blank"),
         icon: "⌨",
       },
       {
