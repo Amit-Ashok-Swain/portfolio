@@ -1,0 +1,20 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+body {
+  @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-white transition-colors duration-500;
+}
+
+body, a, button {
+  cursor: none; 
+}
+
+@media (hover: none) and (pointer: coarse) {
+  body, a, button {
+    cursor: auto !important; 
+  }
+  .custom-cursor {
+    display: none !important; 
+  }
+}
